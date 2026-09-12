@@ -2,15 +2,95 @@ import { useState } from 'react';
 import './App.css';
 import { lessonsData } from './lessonsData';
 
+// Список слов для функции "Слово дня"
+const wordsOfDay = [
+  { kz: 'Өркендеу', ru: 'Процветание', transcription: 'örkendew' },
+  { kz: 'Шабыт', ru: 'Вдохновение', transcription: 'shabyt' },
+  { kz: 'Болашақ', ru: 'Будущее', transcription: 'bolashaq' },
+  { kz: 'Денсаулық', ru: 'Здоровье', transcription: 'densaulyq' },
+  { kz: 'Мақсат', ru: 'Цель', transcription: 'maqsat' },
+  { kz: 'Береке', ru: 'Благополучие / Изобилие', transcription: 'bereke' },
+  { kz: 'Сәттілік', ru: 'Удача', transcription: 'sattilik' },
+  { kz: 'Парасат', ru: 'Мудрость', transcription: 'parasat' },
+  { kz: 'Мейірім', ru: 'Доброта / Милосердие', transcription: 'meirim' },
+  { kz: 'Достық', ru: 'Дружба', transcription: 'dostyq' },
+];
+
+// Автоматический выбор слова на основе текущей даты (меняется каждый день)
+const getTodayWord = () => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = now.getTime() - start.getTime();
+  const oneDay = 1000 * 60 * 60 * 24;
+  const dayOfYear = Math.floor(diff / oneDay);
+  return wordsOfDay[dayOfYear % wordsOfDay.length];
+};
+
+// Данные раздела Правила
+const grammarRules = [
+  {
+    id: 'g1',
+    title: 'Закон сингармонизма (Үндестік заңы)',
+    category: 'Фонетика',
+    summary: 'Главное правило гармонии гласных в казахском языке.',
+    rule: 'Все слова и окончания делятся на твёрдые и мягкие. Если корень слова содержит твёрдые гласные (а, о, ұ, ы), то все прибавляемые окончания должны быть твёрдыми. Если корень мягкий (ә, ө, ү, і, е), окончания будут мягкими.',
+    examples: [
+      { kz: 'Бала + лар = Балалар', ru: 'Дети (твёрдое слово)' },
+      { kz: 'Үй + лер = Үйлер', ru: 'Дома (мягкое слово)' }
+    ]
+  },
+  {
+    id: 'g2',
+    title: 'Личные окончания (Жіктеу жалғаулары)',
+    category: 'Морфология',
+    summary: 'Как связывать существительные и глаголы с местоимениями (Я, Ты, Вы).',
+    rule: 'В казахском языке нет глагола "быть" в настоящем времени. Вместо этого к существительным и прилагательным добавляются личные окончания.',
+    affixes: 'Мен: -мын/-мін, -бын/-бін, -пын/-пін | Сен: -сың/-сің | Сіз: -сыз/-сіз | Ол: (без окончания)',
+    examples: [
+      { kz: 'Мен студентпін.', ru: 'Я студент.' },
+      { kz: 'Сен дәрігерсің.', ru: 'Ты врач.' },
+      { kz: 'Сіз мұғалімсіз.', ru: 'Вы учитель.' },
+      { kz: 'Ол инженер.', ru: 'Он/Она инженер.' }
+    ]
+  },
+  {
+    id: 'g3',
+    title: 'Множественное число (Көптік жалғау)',
+    category: 'Существительное',
+    summary: 'Правила прибавления окончаний -лар/-лер, -дар/-дер, -тар/-тер.',
+    rule: 'Окончание зависит от последней буквы слова:\n1) После гласных, р, й, у: -лар / -лер\n2) После ж, з, м, н, ң: -дар / -дер\n3) После глухих согласных (п, ф, к, қ, т, с, х, ц, ч, ш, щ, б, в, г, д): -тар / -тер',
+    examples: [
+      { kz: 'Ана -> Аналар', ru: 'Мама -> Мамы' },
+      { kz: 'Қала -> Қалалар', ru: 'Город -> Города' },
+      { kz: 'Кітап -> Кітаптар', ru: 'Книга -> Книги' }
+    ]
+  },
+  {
+    id: 'g4',
+    title: 'Притяжательные окончания (Тәуелдік жалғау)',
+    category: 'Существительное',
+    summary: 'Выражение принадлежности (Мой, Твой, Ваш, Его/Её).',
+    rule: 'Прибавление окончаний для обозначения чей предмет: Менің (мой), Сенің (твой), Сіздің (ваш), Оның (его/её).',
+    affixes: 'Менің: -(ы)м / -(і)м | Сенің: -(ы)ң / -(і)ң | Сіздің: -(ы)ңыз / -(і)ңіз | Оның: -сы / -сі / -ы / -і',
+    examples: [
+      { kz: 'Менің досым', ru: 'Мой друг' },
+      { kz: 'Сенің атың', ru: 'Твоё имя' },
+      { kz: 'Сіздің үйіңіз', ru: 'Ваш дом' },
+      { kz: 'Оның отбасы', ru: 'Его семья' }
+    ]
+  }
+];
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'home' | 'learning' | 'grammar' | 'vocabulary'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'rules' | 'grammar' | 'vocabulary'>('home');
   const [xp, setXp] = useState(120);
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
   const [quizAnswers, setQuizAnswers] = useState<{ [key: number]: number }>({});
-  
-  // Состояния для интерактивных карточек (в уроке и в словаре)
+
+  // Состояния для карточек
   const [flippedLessonCard, setFlippedLessonCard] = useState<number | null>(null);
   const [flippedGlobalCard, setFlippedGlobalCard] = useState<number | null>(null);
+  const [expandedGrammar, setExpandedGrammar] = useState<string | null>(null);
 
   const currentLesson = lessonsData.find((l) => l.id === selectedLesson);
 
@@ -28,9 +108,11 @@ export default function App() {
     setQuizAnswers({});
   };
 
+  const todayWord = getTodayWord();
+
   return (
     <div className="app-layout">
-      {/* Боковая панель */}
+      {/* Боковая панель (для больших экранов) */}
       <aside className="sidebar">
         <div>
           <div className="brand-area">
@@ -41,11 +123,11 @@ export default function App() {
             <button className={`nav-btn ${activeTab === 'home' ? 'active' : ''}`} onClick={() => { setActiveTab('home'); setSelectedLesson(null); }}>
               🏠 Главная
             </button>
-            <button className={`nav-btn ${activeTab === 'learning' ? 'active' : ''}`} onClick={() => setActiveTab('learning')}>
-              📚 Обучение
+            <button className={`nav-btn ${activeTab === 'rules' ? 'active' : ''}`} onClick={() => { setActiveTab('rules'); setSelectedLesson(null); }}>
+              📖 Правила
             </button>
             <button className={`nav-btn ${activeTab === 'grammar' ? 'active' : ''}`} onClick={() => { setActiveTab('grammar'); setSelectedLesson(null); }}>
-              📖 Грамматика
+              📚 Грамматика
             </button>
             <button className={`nav-btn ${activeTab === 'vocabulary' ? 'active' : ''}`} onClick={() => { setActiveTab('vocabulary'); setSelectedLesson(null); }}>
               🎴 Словарь
@@ -68,7 +150,7 @@ export default function App() {
           </div>
         </header>
 
-        {/* Раздел Главная */}
+        {/* Раздел: Главная */}
         {activeTab === 'home' && !selectedLesson && (
           <div className="dashboard-grid">
             <div className="left-column">
@@ -78,7 +160,7 @@ export default function App() {
                 <p style={{ marginTop: '0.5rem', opacity: 0.9 }}>Базовые фразы для общения, знакомства и этикета</p>
                 <button 
                   className="btn-primary" 
-                  onClick={() => { setActiveTab('learning'); handleOpenLesson('1.1'); }}
+                  onClick={() => { setActiveTab('grammar'); handleOpenLesson('1.1'); }}
                 >
                   Продолжить →
                 </button>
@@ -87,17 +169,68 @@ export default function App() {
             <div className="right-column">
               <div className="word-of-day">
                 <span style={{ fontSize: '0.75rem', color: '#555', fontWeight: 700 }}>СЛОВО ДНЯ</span>
-                <h2 style={{ color: 'var(--primary-bordeaux)', marginTop: '0.3rem' }}>Өркендеу</h2>
-                <p style={{ color: '#555', fontStyle: 'italic' }}>[örkendew] — Процветание</p>
+                <h2 style={{ color: 'var(--primary-bordeaux)', marginTop: '0.3rem' }}>{todayWord.kz}</h2>
+                <p style={{ color: '#555', fontStyle: 'italic' }}>[{todayWord.transcription}] — {todayWord.ru}</p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Раздел Обучение */}
-        {activeTab === 'learning' && !selectedLesson && (
+        {/* Раздел: Правила */}
+        {activeTab === 'rules' && !selectedLesson && (
           <div>
-            <h3>Программа курса</h3>
+            <h3>📖 Правила языка</h3>
+            <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '1rem' }}>Нажмите на тему, чтобы изучить правило и примеры</p>
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              {grammarRules.map((item) => {
+                const isOpen = expandedGrammar === item.id;
+                return (
+                  <div key={item.id} className="widget-card" style={{ cursor: 'pointer' }} onClick={() => setExpandedGrammar(isOpen ? null : item.id)}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--primary-bordeaux)', fontWeight: 700 }}>{item.category.toUpperCase()}</span>
+                        <h4 style={{ color: '#222', marginTop: '0.2rem' }}>{item.title}</h4>
+                        <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.3rem' }}>{item.summary}</p>
+                      </div>
+                      <span style={{ fontSize: '1.2rem', color: 'var(--primary-bordeaux)' }}>{isOpen ? '▲' : '▼'}</span>
+                    </div>
+
+                    {isOpen && (
+                      <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                        <p style={{ fontSize: '0.9rem', color: '#333', whiteSpace: 'pre-line', lineHeight: '1.5' }}>
+                          <strong>Правило:</strong><br />
+                          {item.rule}
+                        </p>
+
+                        {item.affixes && (
+                          <div style={{ marginTop: '0.8rem', padding: '0.8rem', background: '#f8f9fa', borderRadius: '8px', fontSize: '0.85rem' }}>
+                            <strong>Окончания:</strong> {item.affixes}
+                          </div>
+                        )}
+
+                        <div style={{ marginTop: '1rem' }}>
+                          <strong style={{ fontSize: '0.85rem', color: '#555' }}>Примеры:</strong>
+                          <div style={{ display: 'grid', gap: '0.5rem', marginTop: '0.5rem' }}>
+                            {item.examples.map((ex, idx) => (
+                              <div key={idx} style={{ padding: '0.5rem 0.8rem', background: '#fff', borderRadius: '6px', border: '1px solid #eee', fontSize: '0.85rem' }}>
+                                <span style={{ fontWeight: 600, color: 'var(--primary-bordeaux)' }}>{ex.kz}</span> — <span style={{ color: '#555' }}>{ex.ru}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Раздел: Грамматика (уроки, диалоги, квизы) */}
+        {activeTab === 'grammar' && !selectedLesson && (
+          <div>
+            <h3>📚 Грамматика и модули</h3>
             <div style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
               {lessonsData.map((lesson) => (
                 <div key={lesson.id} className="widget-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -118,7 +251,7 @@ export default function App() {
         {selectedLesson && currentLesson && (
           <div>
             <button onClick={() => setSelectedLesson(null)} style={{ background: 'none', border: 'none', color: 'var(--primary-bordeaux)', cursor: 'pointer', marginBottom: '1rem', fontWeight: 600 }}>
-              ← Назад к списку уроков
+              ← Назад к урокам
             </button>
             <div className="lesson-card">
               <h2>{currentLesson.title}</h2>
@@ -168,52 +301,53 @@ export default function App() {
               {/* Блок 3: Интерактивный тест */}
               <h3 style={{ marginTop: '2.5rem' }}>📝 Проверка знаний (Квиз)</h3>
               <div style={{ marginTop: '1rem' }}>
-                {currentLesson.quiz.map((q) => (
-                  <div key={q.id} style={{ marginBottom: '1.5rem', background: '#fafafa', padding: '1rem', borderRadius: '12px' }}>
-                    <p style={{ fontWeight: 600, marginBottom: '0.8rem' }}>{q.id}. {q.question}</p>
-                    {q.options.map((opt, idx) => {
-                      const isSelected = quizAnswers[q.id] === idx;
-                      const isCorrect = idx === q.correctAnswer;
-                      let btnClass = 'quiz-option';
-                      if (quizAnswers[q.id] !== undefined) {
-                        if (isCorrect) btnClass += ' correct';
-                        else if (isSelected) btnClass += ' wrong';
-                      }
-                      return (
-                        <button key={idx} className={btnClass} onClick={() => handleAnswerSelect(q.id, idx, q.correctAnswer)}>
-                          {opt}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ))}
+                {currentLesson.quiz && currentLesson.quiz.length > 0 ? (
+                  currentLesson.quiz.map((q) => (
+                    <div key={q.id} style={{ marginBottom: '1.5rem', background: '#ffffff', padding: '1.2rem', borderRadius: '12px', border: '1px solid #eee', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                      <p style={{ fontWeight: 600, marginBottom: '0.8rem', color: '#222' }}>{q.id}. {q.question}</p>
+                      {q.options.map((opt, idx) => {
+                        const isSelected = quizAnswers[q.id] === idx;
+                        const isCorrect = idx === q.correctAnswer;
+                        let btnClass = 'quiz-option';
+                        if (quizAnswers[q.id] !== undefined) {
+                          if (isCorrect) btnClass += ' correct';
+                          else if (isSelected) btnClass += ' wrong';
+                        }
+                        return (
+                          <button 
+                            key={idx} 
+                            className={btnClass} 
+                            style={{
+                              display: 'block',
+                              width: '100%',
+                              padding: '12px 16px',
+                              marginTop: '8px',
+                              backgroundColor: isSelected ? (isCorrect ? '#e8f5e9' : '#ffebee') : (quizAnswers[q.id] !== undefined && isCorrect ? '#e8f5e9' : '#ffffff'),
+                              border: '1.5px solid',
+                              borderColor: isSelected ? (isCorrect ? '#4caf50' : '#ef5350') : (quizAnswers[q.id] !== undefined && isCorrect ? '#4caf50' : '#e0e0e0'),
+                              borderRadius: '10px',
+                              color: '#333333',
+                              fontSize: '0.95rem',
+                              textAlign: 'left',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => handleAnswerSelect(q.id, idx, q.correctAnswer)}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ color: '#888' }}>Тест для этого урока скоро появится.</p>
+                )}
               </div>
             </div>
           </div>
         )}
 
-        {/* Раздел Грамматика */}
-        {activeTab === 'grammar' && !selectedLesson && (
-          <div>
-            <h3>📖 Грамматика и правила</h3>
-            <div style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
-              <div className="widget-card">
-                <h4 style={{ color: 'var(--primary-bordeaux)' }}>Закон сингармонизма (Үндестік заңы)</h4>
-                <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>
-                  Гласные звуки подразделяются на гласные твердого и мягкого звучания. Если корень слова твердый (а, о, ұ, ы), то и окончание прибавляется твердое.
-                </p>
-              </div>
-              <div className="widget-card">
-                <h4 style={{ color: 'var(--primary-bordeaux)' }}>Личные окончания (Жіктеу жалғаулары)</h4>
-                <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>
-                  Используются для выражения лица: Мен студент-пін (Я студент), Сіз мұғалім-сіз (Вы учитель).
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Раздел Словарь */}
+        {/* Раздел: Словарь */}
         {activeTab === 'vocabulary' && !selectedLesson && (
           <div>
             <h3 style={{ marginBottom: '0.5rem' }}>🎴 Интерактивный словарь по всем модулям</h3>
@@ -253,14 +387,14 @@ export default function App() {
         <button className={`mobile-nav-btn ${activeTab === 'home' ? 'active' : ''}`} onClick={() => { setActiveTab('home'); setSelectedLesson(null); }}>
           <span>🏠</span> Главная
         </button>
-        <button className={`mobile-nav-btn ${activeTab === 'learning' ? 'active' : ''}`} onClick={() => { setActiveTab('learning'); setSelectedLesson(null); }}>
-          <span>📚</span> Курсы
-        </button>
-        <button className={`mobile-nav-btn ${activeTab === 'grammar' ? 'active' : ''}`} onClick={() => { setActiveTab('grammar'); setSelectedLesson(null); }}>
+        <button className={`mobile-nav-btn ${activeTab === 'rules' ? 'active' : ''}`} onClick={() => { setActiveTab('rules'); setSelectedLesson(null); }}>
           <span>📖</span> Правила
         </button>
+        <button className={`mobile-nav-btn ${activeTab === 'grammar' ? 'active' : ''}`} onClick={() => { setActiveTab('grammar'); setSelectedLesson(null); }}>
+          <span>📚</span> Грамматика
+        </button>
         <button className={`mobile-nav-btn ${activeTab === 'vocabulary' ? 'active' : ''}`} onClick={() => { setActiveTab('vocabulary'); setSelectedLesson(null); }}>
-          <span>🎴</span> Слова
+          <span>🎴</span> Словарь
         </button>
       </nav>
     </div>
