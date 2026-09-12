@@ -82,7 +82,7 @@ export default function App() {
               className={`nav-btn ${activeTab === 'grammar' ? 'active' : ''}`} 
               onClick={() => { setActiveTab('grammar'); setSelectedLesson(null); }}
             >
-              📚 Грамматика
+              📚 Практика
             </button>
             <button 
               className={`nav-btn ${activeTab === 'vocabulary' ? 'active' : ''}`} 
@@ -99,7 +99,7 @@ export default function App() {
       <main className="main-dashboard">
         <header className="top-header">
           <div className="user-greeting">
-            <h2>Сәлем, Оқушы! 👋</h2>
+            <h2>Сәлем, менің ақылдым! 👋</h2>
             <p style={{ color: '#666', fontSize: '0.9rem' }}>Готовы продолжить изучение казахского?</p>
           </div>
           <div className="sun-battery-badge" title="Ваш заряд энергии обучения">
@@ -210,7 +210,7 @@ export default function App() {
         {/* Раздел: Грамматика (уроки, диалоги, квизы) */}
         {activeTab === 'grammar' && !selectedLesson && (
           <div>
-            <h3>📚 Грамматика и модули</h3>
+            <h3>📚 Практика</h3>
             <div style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
               {lessonsData.map((lesson) => (
                 <div 
@@ -424,7 +424,7 @@ export default function App() {
           className={`mobile-nav-btn ${activeTab === 'grammar' ? 'active' : ''}`} 
           onClick={() => { setActiveTab('grammar'); setSelectedLesson(null); }}
         >
-          <span>📚</span> Грамматика
+          <span>📚</span> Практика
         </button>
         <button 
           className={`mobile-nav-btn ${activeTab === 'vocabulary' ? 'active' : ''}`} 
