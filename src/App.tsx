@@ -26,10 +26,11 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Шапка */}
+      {/* Шапка с вашим логотипом */}
       <header className="header">
         <div className="logo">
-          Qazaq <span>Lingo</span>
+          <img src="/logo.png" alt="soile_i_bil by Symbat Logo" className="logo-img" />
+          <span className="logo-title">soile_i_bil <small style={{ fontSize: '0.8rem', fontWeight: 400, color: '#666' }}>by Symbat</small></span>
         </div>
         <nav className="nav-links">
           <button 
@@ -55,7 +56,7 @@ export default function App() {
 
       {/* Главный баннер */}
       <section className="hero">
-        <h1>Изучайте казахский язык бесплатно</h1>
+        <h1>Изучайте казахский язык с soile_i_bil</h1>
         <p>Простая платформа без регистрации. Нажимайте на карточки, чтобы узнать перевод слов.</p>
       </section>
 

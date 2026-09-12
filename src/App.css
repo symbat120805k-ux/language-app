@@ -32,16 +32,23 @@ body {
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--primary-bordeaux);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.8rem;
+  cursor: pointer;
 }
 
-.logo span {
-  color: var(--text-dark);
+.logo-img {
+  height: 50px; /* Высота логотипа в шапке */
+  width: auto;
+  object-fit: contain;
+}
+
+.logo-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary-bordeaux);
+  font-family: 'Georgia', serif; /* Изящный шрифт под стать логотипу */
 }
 
 .nav-links {
