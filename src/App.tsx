@@ -38,7 +38,10 @@ export default function App() {
             <h2>Сәлем, Оқушы! 👋</h2>
             <p style={{ color: '#666', fontSize: '0.9rem' }}>Готовы продолжить изучение казахского?</p>
           </div>
-          <div className="streak-badge">🔥 5 дней подряд</div>
+          <div className="sun-battery-badge" title="Ваш заряд энергии обучения">
+  <span className="sun-icon">☀️</span>
+  <span className="battery-text">Күн батареясы: <strong>120 XP</strong></span>
+</div>
         </header>
 
         <div className="dashboard-grid">
